@@ -2,15 +2,14 @@ import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
 import { json } from "stream/consumers";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const result = await sql`
-     CREATE TABLE IF NOT EXISTS notes (
-  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  note VARCHAR(255) NOT NULL,
-  date VARCHAR(255) NOT NULL
-);
-    `;
+  CREATE TABLE notes (
+     id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    note TEXT NOT NULL,
+    date DATE NOT NULL
+);`;
 
     return NextResponse.json(
       { message: "Table created or already exists", result },

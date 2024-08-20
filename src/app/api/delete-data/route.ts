@@ -1,4 +1,5 @@
 import { sql } from "@vercel/postgres";
+import { redirect } from "next/dist/server/api-utils";
 import { NextResponse } from "next/server";
 
 export async function DELETE(request: Request) {
@@ -11,16 +12,18 @@ export async function DELETE(request: Request) {
         }
 
         const result = await sql`
-            DELETE FROM notes WHERE id = ${id}
-            RETURNING id;
-        `;
-
+            DELETE FROM notes WHERE id = ${id};
+        `
+       ;
+       
         if (result.rowCount === 0) {
             return NextResponse.json({ error: "Note not found" }, { status: 404 });
         }
 
         return NextResponse.json({ success: true, id }, { status: 200 });
-    } catch (error) {
+      }
+    
+    catch (error) {
         console.error("Error deleting note:", error);
         return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
     }

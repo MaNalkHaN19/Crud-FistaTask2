@@ -1,11 +1,11 @@
 import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
 
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
   try {
     // Query to get all notes from the database
     const result = await sql`
-            SELECT * FROM notes;
+           SELECT * FROM notes;
         `;
 
     // Return the result as a JSON response
