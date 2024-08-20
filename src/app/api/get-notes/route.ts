@@ -1,4 +1,5 @@
 import { sql } from "@vercel/postgres";
+import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -17,4 +18,5 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
+  redirect("/");
 }

@@ -1,32 +1,30 @@
-import { log } from "console";
-import { get } from "http";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import type { type } from "os";
-import { env } from "process";
-import { json } from "stream/consumers";
 
 // Helper function to fetch data from the API
+// Helper function to fetch data from the API
 async function fetchFromAPI(endpoint: string, options?: RequestInit) {
-  // Ensure that the endpoint has a base URL
-  const baseUrl = process.env.BASE_URL || "http://localhost:3000"; // Default to localhost if BASE_URL is not set
-  const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
-
-  const response = await fetch(url, options);
-  const data = await response.json();
-  return data;
-}
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+    const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
+  
+    const response = await fetch(url, options);
+    const data = await response.json();
+    return data;
+  }
+  
 
 export default async function Home() {
   //CREATE
-  async function createNote(data: FormData) {
+ async function createNote(data: FormData) {
     "use server";
     const note = data.get("note");
     const date = data.get("date");
 
     try {
-      await fetchFromAPI(`/api/add-data?note=${note}&date=${date}`, {
-        method: "GET",
+      await fetchFromAPI("/api/add-data", {
+        method: "POST",
+        body: JSON.stringify({ note, date }),
+        headers: { "Content-Type": "application/json" },
       });
     } catch (err) {
       console.log(err);
