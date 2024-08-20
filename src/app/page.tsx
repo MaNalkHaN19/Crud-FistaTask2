@@ -1,41 +1,56 @@
-import { pool } from "@/util/dbconnect";
-import dbConnect from "@/util/dbconnect";
+import { log } from "console";
+import { get } from "http";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-export default async function Home() {
+import type { type } from "os";
+import { env } from "process";
+import { json } from "stream/consumers";
 
-  dbConnect();
-  
+// Helper function to fetch data from the API
+async function fetchFromAPI(endpoint: string, options?: RequestInit) {
+  // Ensure that the endpoint has a base URL
+  const baseUrl = process.env.BASE_URL || "http://localhost:3000"; // Default to localhost if BASE_URL is not set
+  const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
+
+  const response = await fetch(url, options);
+  const data = await response.json();
+  return data;
+}
+
+export default async function Home() {
   //CREATE
-  async function createNote(data: any) {
+  async function createNote(data: FormData) {
     "use server";
-    const note = data.get("note")?.valueOf();
-    const date = data.get("date")?.valueOf();
+    const note = data.get("note");
+    const date = data.get("date");
+
     try {
-      const newNote = await pool.query(
-        `INSERT INTO notes (note,date)
-        VALUES ($1,$2) RETURNING *`,
-        [note, date]
-      );
-      console.log(newNote);
+      await fetchFromAPI(`/api/add-data?note=${note}&date=${date}`, {
+        method: "GET",
+      });
     } catch (err) {
       console.log(err);
     }
-    // redirect("/");
+    redirect("/");
   }
 
-  //READ
-  const data = await pool.query("SELECT * FROM notes");
-  const result = data.rows;
+  // Fetch notes to display
+  let result = [];
+  try {
+    result = await fetchFromAPI("/api/get-notes");
+  } catch (error) {
+    console.error("Error fetching notes:", error);
+  }
 
   //DELETE
-  async function deleteNote(data: any) {
+  async function deleteNote(data: FormData) {
     "use server";
-    const id = data.get("id").valueOf();
+    const id = data.get("id");
 
     try {
-      await pool.query(`DELETE FROM notes WHERE id=$1`, [id]);
-      console.log("Note Deleted");
+      await fetchFromAPI(`/api/delete-data?id=${id}`, {
+        method: "DELETE",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -70,32 +85,32 @@ export default async function Home() {
         </form>
       </div>
 
-      {result.map((element) => {
-        return (
-          <>
-            <ul className="flex my-2">
-              <li className="text-center w-[50%]">{element.note}</li>
-              <li className="text-center w-[30%]">{element.date}</li>
-              <li className=" flex text-center w-[20%]">
-                <Link href={"/edit/" + element.id}>
-                  <button className="bg-cyan-600 font-bold text-white p-2 mx-2 rounded-md shadow-lg shadow-cyan-400">
-                    EDIT
-                  </button>
-                </Link>
-                <form action={deleteNote}>
-                  <input type="hidden" name="id" value={element.id} />
-                  <button
-                    className="bg-red-600 font-bold text-white p-2 rounded-md shadow-lg shadow-red-400"
-                    type="submit"
-                  >
-                    DELETE
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </>
-        );
-      })}
+      {result.length > 0 ? (
+        result.map((element: any) => (
+          <ul className="flex my-2" key={element.id}>
+            <li className="text-center w-[50%]">{element.note}</li>
+            <li className="text-center w-[30%]">{element.date}</li>
+            <li className="flex text-center w-[20%]">
+              <Link href={"/edit/" + element.id}>
+                <button className="bg-cyan-600 font-bold text-white p-2 mx-2 rounded-md shadow-lg shadow-cyan-400">
+                  EDIT
+                </button>
+              </Link>
+              <form action={deleteNote}>
+                <input type="hidden" name="id" value={element.id} />
+                <button
+                  className="bg-red-600 font-bold text-white p-2 rounded-md shadow-lg shadow-red-400"
+                  type="submit"
+                >
+                  DELETE
+                </button>
+              </form>
+            </li>
+          </ul>
+        ))
+      ) : (
+        <p>No notes found.</p>
+      )}
     </main>
   );
 }
