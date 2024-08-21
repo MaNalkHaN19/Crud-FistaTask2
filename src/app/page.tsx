@@ -5,13 +5,13 @@ import { revalidatePath } from "next/cache";
 
 // Helper function to fetch data from the API
 async function fetchFromAPI(endpoint: string, options?: RequestInit) {
-  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:3000");
   const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
-
   const response = await fetch(url, options);
   const data = await response.json();
   return data;
 }
+
 
 export default async function Home() {
   // CREATE
