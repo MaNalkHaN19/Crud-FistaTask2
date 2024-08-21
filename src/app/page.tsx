@@ -5,12 +5,7 @@ import { revalidatePath } from "next/cache";
 
 // Helper function to fetch data from the API
 async function fetchFromAPI(endpoint: string, options?: RequestInit) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.NODE_ENV === "production"
-      ? "https://crud-fista-task2.vercel.app" // replace with your production URL
-      : "http://localhost:3000");
-
+  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
   const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
 
   const response = await fetch(url, options);
