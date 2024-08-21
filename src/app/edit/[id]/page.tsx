@@ -1,4 +1,5 @@
 import { sql } from "@vercel/postgres";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 // Function to handle note update
@@ -14,7 +15,7 @@ async function updateNote(data: FormData) {
     }
 
     try {
-        const response = await fetch("/api/edit-data", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/edit-data`, {
             method: "POST",
             body: JSON.stringify({ id, note, date }),
             headers: { "Content-Type": "application/json" },
@@ -28,9 +29,10 @@ async function updateNote(data: FormData) {
     } catch (err) {
         console.error("Error in updating note:", err);
     }
-
+    revalidatePath('/')
     redirect("/");
 }
+
 
 export default async function edit({ params }: { params: any }) {
     const id = params.id;

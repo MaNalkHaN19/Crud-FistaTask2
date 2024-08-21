@@ -2,11 +2,11 @@ import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
 import { json } from "stream/consumers";
 
-export async function GET() {
+export async function GET(request:Request) {
   try {
     const result = await sql`
   CREATE TABLE notes (
-     id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     note TEXT NOT NULL,
     date DATE NOT NULL
 );`;

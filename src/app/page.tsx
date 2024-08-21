@@ -1,44 +1,49 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { format } from 'date-fns';
+import { revalidatePath } from "next/cache";
 
-// Helper function to fetch data from the API
 // Helper function to fetch data from the API
 async function fetchFromAPI(endpoint: string, options?: RequestInit) {
-    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
-    const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
-  
-    const response = await fetch(url, options);
-    const data = await response.json();
-    return data;
-  }
-  
+  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+  const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
+
+  const response = await fetch(url, options);
+  const data = await response.json();
+  return data;
+}
 
 export default async function Home() {
-  //CREATE
+  // CREATE
   async function createNote(data: FormData) {
     "use server";
     const note = data.get("note");
     const date = data.get("date");
 
     try {
-      await fetchFromAPI(`/api/add-data?note=${note}&date=${date}`, {
+      await fetchFromAPI("/api/add-data", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ note, date }),
       });
     } catch (err) {
       console.log(err);
     }
+    revalidatePath("/");
     redirect("/");
   }
 
   // Fetch notes to display
   let result = [];
   try {
-    result = await fetchFromAPI("/api/get-notes");
+    result = await fetchFromAPI("/api/add-data");
   } catch (error) {
     console.error("Error fetching notes:", error);
   }
 
-  //DELETE
+  // DELETE
   async function deleteNote(data: FormData) {
     "use server";
     const id = data.get("id");
@@ -50,6 +55,7 @@ export default async function Home() {
     } catch (error) {
       console.log(error);
     }
+    revalidatePath("/");
     redirect("/");
   }
 
@@ -85,7 +91,9 @@ export default async function Home() {
         result.map((element: any) => (
           <ul className="flex my-2" key={element.id}>
             <li className="text-center w-[50%]">{element.note}</li>
-            <li className="text-center w-[30%]">{element.date}</li>
+            <li className="text-center w-[30%]">
+              {format(new Date(element.date), "yyyy-MM-dd")}
+            </li>
             <li className="flex text-center w-[20%]">
               <Link href={"/edit/" + element.id}>
                 <button className="bg-cyan-600 font-bold text-white p-2 mx-2 rounded-md shadow-lg shadow-cyan-400">

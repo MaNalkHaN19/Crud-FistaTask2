@@ -1,5 +1,4 @@
 import { sql } from "@vercel/postgres";
-import { redirect } from "next/dist/server/api-utils";
 import { NextResponse } from "next/server";
 
 export async function DELETE(request: Request) {
@@ -28,3 +27,4 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
     }
 }
+
