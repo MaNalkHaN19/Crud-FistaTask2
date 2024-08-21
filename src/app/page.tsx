@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 
 // Helper function to fetch data from the API
@@ -8,7 +8,7 @@ async function fetchFromAPI(endpoint: string, options?: RequestInit) {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ||
     (process.env.NODE_ENV === "production"
-      ? "https://your-app.vercel.app" // replace with your production URL
+      ? "https://crud-fista-task2.vercel.app" // replace with your production URL
       : "http://localhost:3000");
 
   const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
@@ -17,7 +17,6 @@ async function fetchFromAPI(endpoint: string, options?: RequestInit) {
   const data = await response.json();
   return data;
 }
-
 
 export default async function Home() {
   // CREATE
